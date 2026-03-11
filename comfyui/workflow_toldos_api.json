@@ -1,0 +1,226 @@
+{
+    "_comment": "ComfyUI Workflow para Generación de Toldos — Formato API (para Fal.ai)",
+    "_instructions": [
+        "1. Abre ComfyUI localmente y usa este JSON como base.",
+        "2. Las claves {{IMAGE_URL}}, {{MASK_URL}}, {{PROMPT}}, {{PROMPT_NEG}} son reemplazadas por n8n dinámicamente.",
+        "3. En n8n, codifica este archivo en Base64 y guárdalo en la variable COMFYUI_WORKFLOW_JSON_B64.",
+        "4. Asegúrate de tener instalados los modelos: sdxl_base_1.0, control_mlsd, ip-adapter-sdxl."
+    ],
+    "1": {
+        "inputs": {
+            "url": "{{IMAGE_URL}}",
+            "upload": "image"
+        },
+        "class_type": "LoadImageFromURL",
+        "_meta": {
+            "title": "Cargar Imagen Fachada (S3)"
+        }
+    },
+    "2": {
+        "inputs": {
+            "url": "{{MASK_URL}}",
+            "upload": "image"
+        },
+        "class_type": "LoadImageFromURL",
+        "_meta": {
+            "title": "Cargar Máscara Toldo (S3)"
+        }
+    },
+    "3": {
+        "inputs": {
+            "text": "{{PROMPT}}",
+            "clip": [
+                "4",
+                1
+            ]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+            "title": "Prompt Positivo (toldo + textura)"
+        }
+    },
+    "4": {
+        "inputs": {
+            "ckpt_name": "sd_xl_base_1.0.safetensors"
+        },
+        "class_type": "CheckpointLoaderSimple",
+        "_meta": {
+            "title": "Cargar SDXL Base"
+        }
+    },
+    "5": {
+        "inputs": {
+            "text": "{{PROMPT_NEG}}",
+            "clip": [
+                "4",
+                1
+            ]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+            "title": "Prompt Negativo"
+        }
+    },
+    "6": {
+        "inputs": {
+            "control_net_name": "control-lora-openposeXL2-rank256.safetensors"
+        },
+        "class_type": "ControlNetLoader",
+        "_meta": {
+            "title": "Cargar ControlNet MLSD (perspectiva)"
+        }
+    },
+    "7": {
+        "inputs": {
+            "strength": 0.6,
+            "start_percent": 0.0,
+            "end_percent": 0.65,
+            "positive": [
+                "3",
+                0
+            ],
+            "negative": [
+                "5",
+                0
+            ],
+            "control_net": [
+                "6",
+                0
+            ],
+            "image": [
+                "1",
+                0
+            ]
+        },
+        "class_type": "ControlNetApplyAdvanced",
+        "_meta": {
+            "title": "Aplicar ControlNet (perspectiva pared)"
+        }
+    },
+    "8": {
+        "inputs": {
+            "preset": "LIGHT - model only",
+            "model": [
+                "4",
+                0
+            ]
+        },
+        "class_type": "IPAdapterUnifiedLoader",
+        "_meta": {
+            "title": "Cargar IP-Adapter SDXL"
+        }
+    },
+    "9": {
+        "inputs": {
+            "weight": 0.5,
+            "weight_type": "linear",
+            "combine_embeds": "concat",
+            "start_at": 0.0,
+            "end_at": 0.75,
+            "embeds_scaling": "V only",
+            "model": [
+                "8",
+                0
+            ],
+            "ipadapter": [
+                "8",
+                1
+            ],
+            "image": [
+                "1",
+                0
+            ]
+        },
+        "class_type": "IPAdapter",
+        "_meta": {
+            "title": "IP-Adapter (inyectar textura toldo)"
+        }
+    },
+    "10": {
+        "inputs": {
+            "positive": [
+                "7",
+                0
+            ],
+            "negative": [
+                "7",
+                1
+            ],
+            "vae": [
+                "4",
+                2
+            ],
+            "pixels": [
+                "1",
+                0
+            ],
+            "mask": [
+                "2",
+                0
+            ]
+        },
+        "class_type": "InpaintModelConditioning",
+        "_meta": {
+            "title": "Inpainting Conditioning SDXL"
+        }
+    },
+    "11": {
+        "inputs": {
+            "seed": -1,
+            "steps": 30,
+            "cfg": 7,
+            "sampler_name": "dpmpp_2m",
+            "scheduler": "karras",
+            "denoise": 0.95,
+            "model": [
+                "9",
+                0
+            ],
+            "positive": [
+                "10",
+                0
+            ],
+            "negative": [
+                "10",
+                1
+            ],
+            "latent_image": [
+                "10",
+                2
+            ]
+        },
+        "class_type": "KSampler",
+        "_meta": {
+            "title": "KSampler — Generar render"
+        }
+    },
+    "12": {
+        "inputs": {
+            "samples": [
+                "11",
+                0
+            ],
+            "vae": [
+                "4",
+                2
+            ]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+            "title": "VAE Decode → imagen RGB"
+        }
+    },
+    "13": {
+        "inputs": {
+            "filename_prefix": "toldo_render",
+            "images": [
+                "12",
+                0
+            ]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+            "title": "Guardar render final"
+        }
+    }
+}

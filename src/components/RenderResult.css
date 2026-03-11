@@ -1,0 +1,134 @@
+.result-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.result-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.result-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.result-sub {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-top: 4px;
+}
+
+.result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f59e0b20, #f59e0b10);
+    border: 1px solid #f59e0b40;
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ─── Comparison Slider ─── */
+.result-comparison {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+.compare-wrap {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    cursor: col-resize;
+    line-height: 0;
+}
+
+.compare-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+}
+
+.compare-after {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.compare-after .compare-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.compare-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #fff;
+    transform: translateX(-50%);
+    box-shadow: 0 0 12px #00000080;
+}
+
+.compare-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px #00000060;
+    font-size: 14px;
+    color: #333;
+}
+
+.compare-label {
+    position: absolute;
+    background: #000000bb;
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.before-label {
+    bottom: 14px;
+    left: -40px;
+}
+
+.after-label {
+    bottom: 14px;
+    right: 12px;
+    position: absolute;
+}
+
+/* ─── Actions ─── */
+.result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}

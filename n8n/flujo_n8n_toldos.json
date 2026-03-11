@@ -1,0 +1,247 @@
+{
+    "name": "ToldosAI — Render Pipeline",
+    "nodes": [
+        {
+            "id": "webhook-node",
+            "name": "Webhook — Recibir de React",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                240,
+                300
+            ],
+            "parameters": {
+                "path": "toldos",
+                "httpMethod": "POST",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            }
+        },
+        {
+            "id": "decode-image",
+            "name": "Procesar payload",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                460,
+                300
+            ],
+            "parameters": {
+                "jsCode": "// Extraer datos del body\nconst body = $input.first().json.body;\nreturn [{\n  json: {\n    imageBase64: body.image,\n    maskBase64:  body.mask,\n    prompt:      body.prompt,\n    promptNeg:   body.prompt_neg,\n    awningType:  body.awning_type,\n    color:       body.color,\n  }\n}];"
+            }
+        },
+        {
+            "id": "upload-image-s3",
+            "name": "S3 — Subir imagen original",
+            "type": "n8n-nodes-base.awsS3",
+            "typeVersion": 1,
+            "position": [
+                680,
+                200
+            ],
+            "credentials": {
+                "aws": {
+                    "id": "YOUR_AWS_CREDENTIALS_ID",
+                    "name": "AWS S3"
+                }
+            },
+            "parameters": {
+                "operation": "upload",
+                "bucketName": "={{ $env.S3_BUCKET }}",
+                "fileName": "={{ 'toldos/input_' + $now.toMillis() + '.jpg' }}",
+                "binaryData": false,
+                "fileContent": "={{ $json.imageBase64 }}",
+                "options": {
+                    "acl": "public-read",
+                    "contentType": "image/jpeg"
+                }
+            }
+        },
+        {
+            "id": "upload-mask-s3",
+            "name": "S3 — Subir máscara",
+            "type": "n8n-nodes-base.awsS3",
+            "typeVersion": 1,
+            "position": [
+                680,
+                400
+            ],
+            "credentials": {
+                "aws": {
+                    "id": "YOUR_AWS_CREDENTIALS_ID",
+                    "name": "AWS S3"
+                }
+            },
+            "parameters": {
+                "operation": "upload",
+                "bucketName": "={{ $env.S3_BUCKET }}",
+                "fileName": "={{ 'toldos/mask_' + $now.toMillis() + '.png' }}",
+                "binaryData": false,
+                "fileContent": "={{ $json.maskBase64 }}",
+                "options": {
+                    "acl": "public-read",
+                    "contentType": "image/png"
+                }
+            }
+        },
+        {
+            "id": "fal-submit",
+            "name": "Fal.ai — Enviar a ComfyUI",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                900,
+                300
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "https://queue.fal.run/fal-ai/any-comfy",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "options": {},
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Key {{ $env.FAL_API_KEY }}"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyContentType": "json",
+                "jsonBody": "={{ JSON.stringify({ workflow_json: $env.COMFYUI_WORKFLOW_JSON_B64, inputs: { image_url: $('S3 — Subir imagen original').item.json.Location, mask_url: $('S3 — Subir máscara').item.json.Location, prompt: $('Procesar payload').item.json.prompt, prompt_neg: $('Procesar payload').item.json.promptNeg } }) }}"
+            }
+        },
+        {
+            "id": "wait-poll",
+            "name": "Esperar resultado (poll)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1120,
+                300
+            ],
+            "parameters": {
+                "method": "GET",
+                "url": "={{ $json.status_url }}",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Key {{ $env.FAL_API_KEY }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "waitBetweenRequests": 4000
+                }
+            }
+        },
+        {
+            "id": "respond-webhook",
+            "name": "Responder a React",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1340,
+                300
+            ],
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ JSON.stringify({ render_url: $json.output?.images?.[0]?.url ?? $json.images?.[0]?.url }) }}",
+                "options": {
+                    "responseCode": 200
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook — Recibir de React": {
+            "main": [
+                [
+                    {
+                        "node": "Procesar payload",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Procesar payload": {
+            "main": [
+                [
+                    {
+                        "node": "S3 — Subir imagen original",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "S3 — Subir máscara",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "S3 — Subir imagen original": {
+            "main": [
+                [
+                    {
+                        "node": "Fal.ai — Enviar a ComfyUI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "S3 — Subir máscara": {
+            "main": [
+                [
+                    {
+                        "node": "Fal.ai — Enviar a ComfyUI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fal.ai — Enviar a ComfyUI": {
+            "main": [
+                [
+                    {
+                        "node": "Esperar resultado (poll)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Esperar resultado (poll)": {
+            "main": [
+                [
+                    {
+                        "node": "Responder a React",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "meta": {
+        "description": "ToldosAI n8n pipeline — recibe imagen+máscara de React, sube a S3, llama a Fal.ai/ComfyUI, devuelve URL del render."
+    }
+}

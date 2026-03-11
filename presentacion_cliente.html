@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToldosAI — Presentación para el Cliente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070d;
+            --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.09);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --green: #22c55e;
+            --accent: #818cf8;
+            --text: #f1f5f9;
+            --muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 64px;
+            background: rgba(5, 7, 13, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .nav-logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .875rem;
+            font-weight: 500;
+            transition: color .2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59, 130, 246, 0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: .4rem 1rem;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: .05em;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gr {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--muted);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 3rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem 1.25rem;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-blue {
+            background: var(--primary);
+        }
+
+        .dot-green {
+            background: var(--green);
+        }
+
+        .dot-purple {
+            background: var(--accent);
+        }
+
+        /* ── SECTION ── */
+        section {
+            padding: 6rem 2rem;
+        }
+
+        .section-label {
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: .75rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 3.5vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 560px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0;
+        }
+
+        /* ── PHONE FRAME ── */
+        .phone {
+            width: 280px;
+            background: #0d0f18;
+            border-radius: 44px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.04), 0 40px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 28px;
+            background: #0d0f18;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            padding-top: 56px;
+            min-height: 580px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── SCREEN MOCKUPS ── */
+        /* Header */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .6rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        .app-logo {
+            color: #fff;
+        }
+
+        .app-logo em {
+            color: var(--primary);
+            font-style: normal;
+        }
+
+        .app-beta {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: .6rem;
+            font-weight: 700;
+        }
+
+        /* SCREEN 1: Hero */
+        .screen-hero {
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .75rem;
+            text-align: center;
+            flex: 1;
+        }
+
+        .s-tag {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 99px;
+            padding: 3px 10px;
+            font-size: .55rem;
+            font-weight: 700;
+        }
+
+        .s-h1 {
+            font-size: .9rem;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .s-h1 .gr {
+            background: linear-gradient(135deg, #3b82f6, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .s-sub {
+            font-size: .55rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .upload-zone {
+            width: 100%;
+            border: 2px dashed rgba(59, 130, 246, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem .75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(59, 130, 246, 0.05);
+            margin: .25rem 0;
+        }
+
+        .upload-icon {
+            font-size: 1.5rem;
+        }
+
+        .upload-main {
+            font-size: .65rem;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            font-size: .52rem;
+            color: var(--muted);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: .5rem;
+            width: 100%;
+        }
+
+        .s-btn {
+            flex: 1;
+            padding: .4rem;
+            border-radius: 8px;
+            font-size: .6rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .s-btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+        }
+
+        .s-btn-ghost {
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        /* SCREEN 2: Mask */
+        .screen-mask {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .step-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .25rem;
+            padding: .5rem;
+            font-size: .52rem;
+            color: var(--muted);
+        }
+
+        .step-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: .5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-dot.inactive {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--muted);
+        }
+
+        .step-line {
+            width: 24px;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .mask-header {
+            padding: .5rem 1rem .25rem;
+        }
+
+        .mask-title {
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .mask-sub {
+            font-size: .52rem;
+            color: var(--muted);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: .4rem;
+            padding: .4rem .75rem;
+            flex-wrap: wrap;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            margin: .4rem .75rem;
+            border-radius: 10px;
+        }
+
+        .tool-pill {
+            font-size: .52rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .tool-active {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
+        .tool-inactive {
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tool-danger {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .canvas-area {
+            margin: 0 .75rem;
+            border-radius: 12px;
+            overflow: hidden;
+            flex: 1;
+            position: relative;
+            background: #1a1c2a;
+            min-height: 220px;
+        }
+
+        .canvas-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(.8);
+        }
+
+        .green-mask {
+            position: absolute;
+            top: 30%;
+            left: 10%;
+            width: 60%;
+            height: 45%;
+            background: rgba(34, 197, 94, 0.45);
+            border-radius: 8px;
+            border: 2px solid rgba(34, 197, 94, 0.7);
+        }
+
+        .canvas-hint-bar {
+            font-size: .48rem;
+            color: var(--muted);
+            text-align: center;
+            padding: .3rem;
+        }
+
+        .action-row {
+            display: flex;
+            gap: .5rem;
+            padding: .5rem .75rem .75rem;
+        }
+
+        .s-btn-sm {
+            flex: 1;
+            padding: .35rem;
+            border-radius: 7px;
+            font-size: .55rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* SCREEN 3: Catalog */
+        .screen-cat {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 0 .75rem .75rem;
+            gap: .5rem;
+            overflow: hidden;
+        }
+
+        .cat-section-label {
+            font-size: .55rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-top: .4rem;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .4rem;
+        }
+
+        .type-card {
+            padding: .5rem .6rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.03);
+            font-size: .58rem;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .type-card.selected {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .type-icon {
+            font-size: .9rem;
+            margin-bottom: .2rem;
+            display: block;
+        }
+
+        .color-row {
+            display: flex;
+            gap: .4rem;
+            flex-wrap: wrap;
+        }
+
+        .color-chip {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .color-chip.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+
+        .gen-btn {
+            margin-top: auto;
+            padding: .5rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* SCREEN 4: Loading */
+        .screen-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 1rem .75rem;
+            gap: .75rem;
+        }
+
+        .brain-icon {
+            font-size: 2.5rem;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-title {
+            font-size: .85rem;
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(135deg, #3b82f6, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading-sub {
+            font-size: .55rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .stage-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .stage-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .4rem .6rem;
+            border-radius: 8px;
+            font-size: .58rem;
+        }
+
+        .stage-done {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--green);
+        }
+
+        .stage-active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .stage-pending {
+            color: var(--muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 55%;
+            background: linear-gradient(90deg, #3b82f6, #818cf8);
+            border-radius: 999px;
+        }
+
+        /* ── STEPS SECTION ── */
+        .steps-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            align-items: flex-start;
+            justify-content: center;
+            margin-top: 4rem;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 300px;
+        }
+
+        .step-expl {
+            text-align: center;
+        }
+
+        .step-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: var(--primary);
+            font-size: .8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+
+        .step-name {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .4rem;
+        }
+
+        .step-desc {
+            font-size: .85rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── COMPARE SECTION ── */
+        .compare-wrap {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .compare-before,
+        .compare-after {
+            width: 100%;
+            display: block;
+            border-radius: 20px;
+        }
+
+        .compare-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 3rem auto 0;
+        }
+
+        .compare-card {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .compare-card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .compare-label {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: .4rem 1.2rem;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .label-before {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .label-after {
+            background: rgba(34, 197, 94, 0.85);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        /* ── FEATURES ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feat-card {
+            padding: 1.75rem;
+            border-radius: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: border-color .3s, transform .3s;
+        }
+
+        .feat-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .feat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feat-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .feat-desc {
+            font-size: .875rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        /* ── PRINT / PDF ── */
+        @media print {
+
+            /* Force all browsers to print background colors and images exactly */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* Hide nav — it's fixed position and looks bad in PDF */
+            nav {
+                display: none !important;
+            }
+
+            /* Remove sticky/fixed behavior and top padding */
+            body {
+                padding-top: 0;
+            }
+
+            /* Keep sections together — avoid ugly mid-card page breaks */
+            section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                padding: 3rem 1.5rem;
+            }
+
+            .step-item {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .phone {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .feat-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .compare-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .steps-grid {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Force hero gradient backgrounds to print */
+            .hero::before {
+                content: '';
+                background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59, 130, 246, 0.3) 0%, transparent 70%) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Give page a black background so the dark theme renders correctly */
+            html,
+            body {
+                background: #05070d !important;
+            }
+
+            /* Ensure gradient text renders in PDF (fallback solid color) */
+            .hero h1 .gr,
+            .loading-title,
+            .s-h1 .gr {
+                background: linear-gradient(135deg, #3b82f6, #818cf8) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Page margins */
+            @page {
+                margin: 1.5cm 1cm;
+                size: A4 landscape;
+            }
+
+            /* Add a page break before each main section for cleaner PDF layout */
+            #resultado,
+            #acciones,
+            #tecnologia {
+                page-break-before: always;
+                break-before: always;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-logo">Toldos<span>AI</span></div>
+        <ul class="nav-links">
+            <li><a href="#flujo">Cómo funciona</a></li>
+            <li><a href="#resultado">Resultado</a></li>
+            <li><a href="#acciones">Acciones</a></li>
+            <li><a href="#tecnologia">Tecnología</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-tag">🤖 Inteligencia Artificial aplicada a toldos</div>
+        <h1>Visualiza tu toldo<br><span class="gr">antes de instalarlo</span></h1>
+        <p>El cliente sube una foto de su fachada, pinta la zona, elige modelo y color — y la IA genera un render
+            fotorrealista en segundos.</p>
+        <div class="hero-badges">
+            <div class="badge"><span class="dot dot-green"></span>100% en el móvil</div>
+            <div class="badge"><span class="dot dot-blue"></span>Render en ~30 segundos</div>
+            <div class="badge"><span class="dot dot-purple"></span>Sin instalación</div>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FLUJO -->
+    <section id="flujo">
+        <div class="container">
+            <div class="section-label">Flujo de uso</div>
+            <div class="section-title">4 pasos, menos de 1 minuto</div>
+            <p class="section-sub">El cliente no necesita saber nada de diseño. La app le guía paso a paso desde su
+                teléfono.</p>
+
+            <div class="steps-grid">
+
+                <!-- Step 1: Upload -->
+                <div class="step-item">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="app-header"><span class="app-logo">Toldos<em>AI</em></span><span
+                                    class="app-beta">⚡ BETA</span></div>
+                            <div class="screen-hero">
+                                <div class="s-tag">🤖 Powered by ComfyUI + Fal.ai</div>
+                                <div class="s-h1">Visualiza el toldo<br>perfecto<br><span class="gr">en tu fachada, con
+                                        IA</span></div>
+                                <div class="s-sub">Sube una foto, marca la zona con el pincel y elige tu toldo. La IA
+                                    genera un render fotorrealista.</div>
+                                <div class="upload-zone">
+                                    <div class="upload-icon">🖼️</div>
+                                    <div class="upload-main">Arrastra la foto aquí</div>
+                                    <div class="upload-hint">JPG, PNG · Máx. 10 MB</div>
+                                </div>
+                                <div class="btn-row">
+                                    <div class="s-btn s-btn-primary">📷 Subir foto</div>
+                                    <div class="s-btn s-btn-ghost">📸 Tomar foto</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-expl">
+                        <div class="step-num">1</div>
+                        <div class="step-name">Sube la foto</div>
+                        <div class="step-desc">El cliente sube una foto de su fachada o la toma con la cámara del móvil
+                            directamente.</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Mask -->
+                <div class="step-item">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="app-header"><span class="app-logo">Toldos<em>AI</em></span><span
+                                    class="app-beta">⚡ BETA</span></div>
+                            <div class="screen-mask">
+                                <div class="step-bar">
+                                    <div class="step-dot">1</div>
+                                    <div class="step-line"></div>
+                                    <div class="step-dot inactive">2</div>
+                                    <div class="step-line"></div>
+                                    <div class="step-dot inactive">3</div>
+                                </div>
+                                <div class="mask-header">
+                                    <div class="mask-title">Pinta la zona del toldo</div>
+                                    <div class="mask-sub">Usa el pincel o el Clic mágico ✨</div>
+                                </div>
+                                <div class="toolbar">
+                                    <span class="tool-pill tool-active">✏️ Pincel</span>
+                                    <span class="tool-pill tool-inactive">✨ Clic mágico</span>
+                                    <span class="tool-pill tool-danger">🗑 Limpiar</span>
+                                </div>
+                                <div class="canvas-area">
+                                    <div
+                                        style="width:100%;height:220px;background:linear-gradient(180deg,#c0b89a 0%,#a09070 40%,#8a7a60 100%);position:relative;">
+                                        <!-- Fake facade -->
+                                        <div
+                                            style="position:absolute;top:0;left:0;right:0;height:12px;background:#6a5c48;">
+                                        </div>
+                                        <div
+                                            style="position:absolute;top:20%;left:15%;width:30%;height:35%;background:#b0a888;border-radius:4px;border:2px solid #8a7a60;">
+                                        </div>
+                                        <div
+                                            style="position:absolute;top:20%;right:15%;width:30%;height:35%;background:#b0a888;border-radius:4px;border:2px solid #8a7a60;">
+                                        </div>
+                                        <!-- Green mask -->
+                                        <div
+                                            style="position:absolute;top:5%;left:5%;width:90%;height:22%;background:rgba(34,197,94,0.5);border:2px solid rgba(34,197,94,0.8);border-radius:6px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="canvas-hint-bar">Alt+arrastrar para borrar</div>
+                                <div class="action-row">
+                                    <div class="s-btn-sm s-btn-ghost">↩ Cambiar foto</div>
+                                    <div class="s-btn-sm s-btn-primary">Elegir toldo →</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-expl">
+                        <div class="step-num">2</div>
+                        <div class="step-name">Marca la zona</div>
+                        <div class="step-desc">Con el pincel o el Clic mágico ✨, el cliente señala exactamente dónde
+                            quiere el toldo.</div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Catalog -->
+                <div class="step-item">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="app-header"><span class="app-logo">Toldos<em>AI</em></span><span
+                                    class="app-beta">⚡ BETA</span></div>
+                            <div class="screen-cat">
+                                <div class="step-bar">
+                                    <div class="step-dot" style="opacity:.5">1</div>
+                                    <div class="step-line"></div>
+                                    <div class="step-dot">2</div>
+                                    <div class="step-line"></div>
+                                    <div class="step-dot inactive">3</div>
+                                </div>
+                                <div class="mask-title">Elige tu toldo</div>
+                                <div class="cat-section-label">Tipo de toldo</div>
+                                <div class="type-grid">
+                                    <div class="type-card selected"><span class="type-icon">🏠</span>Toldo Cofre</div>
+                                    <div class="type-card"><span class="type-icon">📐</span>Toldo Vertical</div>
+                                    <div class="type-card"><span class="type-icon">🌿</span>Pérgola Bio.</div>
+                                    <div class="type-card"><span class="type-icon">🦾</span>Brazos Invis.</div>
+                                </div>
+                                <div class="cat-section-label">Color / Patrón</div>
+                                <div class="color-row">
+                                    <div class="color-chip" style="background:#f5f0e8;"></div>
+                                    <div class="color-chip selected" style="background:#c8b89a;"></div>
+                                    <div class="color-chip" style="background:#3d3d3d;"></div>
+                                    <div class="color-chip" style="background:#1e3a6e;"></div>
+                                    <div class="color-chip" style="background:#c0614a;"></div>
+                                    <div class="color-chip" style="background:#5c7a4e;"></div>
+                                </div>
+                                <div class="gen-btn">🪄 Generar render con IA</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-expl">
+                        <div class="step-num">3</div>
+                        <div class="step-name">Elige modelo y color</div>
+                        <div class="step-desc">Selecciona del catálogo: tipo de toldo y color de lona. Solo un toque por
+                            opción.</div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Loading -->
+                <div class="step-item">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="app-header"><span class="app-logo">Toldos<em>AI</em></span><span
+                                    class="app-beta">⚡ BETA</span></div>
+                            <div class="screen-loading">
+                                <div class="brain-icon">🧠</div>
+                                <div class="loading-title">Generando render con IA</div>
+                                <div class="loading-sub">Esto puede tardar entre 15 y 45 segundos</div>
+                                <div class="stage-list">
+                                    <div class="stage-item stage-done">✅ Imagen subida a la nube</div>
+                                    <div class="stage-item stage-done">✅ Fachada analizada</div>
+                                    <div class="stage-item stage-active">🎨 La IA está pintando tu toldo…</div>
+                                    <div class="stage-item stage-pending">✨ Últimos retoques…</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill"></div>
+                                </div>
+                                <div class="loading-sub">💡 El toldo se integra respetando sombras y perspectiva</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-expl">
+                        <div class="step-num">4</div>
+                        <div class="step-name">La IA genera el render</div>
+                        <div class="step-desc">El motor de IA procesa la imagen y devuelve un render fotorrealista en
+                            15–45 segundos.</div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Result + Actions -->
+                <div class="step-item">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="app-header"><span class="app-logo">Toldos<em>AI</em></span><span
+                                    class="app-beta">⚡ BETA</span></div>
+                            <div style="display:flex;flex-direction:column;flex:1;padding:.75rem;gap:.6rem;">
+                                <div
+                                    style="font-size:.65rem;font-weight:800;text-align:center;background:linear-gradient(135deg,#22c55e,#16a34a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                                    ✨ ¡Render generado!</div>
+                                <!-- Result image mockup -->
+                                <div style="border-radius:12px;overflow:hidden;position:relative;">
+                                    <img src="despues.jpg" alt="Render toldo"
+                                        style="width:100%;height:150px;object-fit:cover;display:block;"
+                                        onerror="this.style.background='linear-gradient(135deg,#143d22,#0d2d1a)';this.style.height='150px';this.removeAttribute('src');">
+                                    <div
+                                        style="position:absolute;top:.4rem;right:.4rem;background:rgba(34,197,94,0.85);border-radius:99px;padding:2px 8px;font-size:.5rem;font-weight:700;color:#fff;">
+                                        IA</div>
+                                </div>
+                                <!-- Slider label -->
+                                <div style="font-size:.52rem;color:var(--muted);text-align:center;">← Arrastra para
+                                    comparar →</div>
+                                <!-- Action buttons -->
+                                <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                                    <div
+                                        style="flex:1;min-width:calc(50% - .2rem);padding:.4rem .3rem;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.35);border-radius:8px;font-size:.52rem;font-weight:700;color:#25d366;text-align:center;">
+                                        📲 WhatsApp</div>
+                                    <div
+                                        style="flex:1;min-width:calc(50% - .2rem);padding:.4rem .3rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;font-size:.52rem;font-weight:700;color:var(--primary);text-align:center;">
+                                        📧 E-mail</div>
+                                    <div
+                                        style="flex:1;min-width:calc(50% - .2rem);padding:.4rem .3rem;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;font-size:.52rem;font-weight:700;color:var(--text);text-align:center;">
+                                        ⬇️ Descargar</div>
+                                    <div
+                                        style="flex:1;min-width:calc(50% - .2rem);padding:.4rem .3rem;background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.3);border-radius:8px;font-size:.52rem;font-weight:700;color:var(--accent);text-align:center;">
+                                        🔁 Regenerar</div>
+                                </div>
+                                <div
+                                    style="padding:.4rem .5rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;font-size:.52rem;font-weight:600;color:var(--muted);text-align:center;">
+                                    🖥️ Ver en pantalla completa (Full HD)</div>
+                                <div
+                                    style="padding:.35rem;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:.5rem;color:#ef4444;text-align:center;">
+                                    ↩ Empezar de nuevo</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-expl">
+                        <div class="step-num">5</div>
+                        <div class="step-name">Comparte el resultado</div>
+                        <div class="step-desc">El cliente puede compartir, descargar o pedir otra variante al instante
+                            desde el mismo móvil.</div>
+                    </div>
+                </div>
+
+            </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- RESULTADO -->
+    <section id="resultado">
+        <div class="container">
+            <div class="section-label">Resultado</div>
+            <div class="section-title">Antes y después — render real de IA</div>
+            <p class="section-sub">La misma fachada, antes y después de aplicar el toldo con inteligencia artificial. El
+                cliente ve exactamente cómo quedará.</p>
+
+            <div class="compare-pair">
+                <div class="compare-card">
+                    <img src="antes.jpg" alt="Antes — sin toldo"
+                        onerror="this.style.background='linear-gradient(135deg,#1a1c2a,#2a2d3d)';this.style.height='320px';this.src='';">
+                    <div class="compare-label label-before">📷 Foto original</div>
+                </div>
+                <div class="compare-card">
+                    <img src="despues.jpg" alt="Después — con toldo generado por IA"
+                        onerror="this.style.background='linear-gradient(135deg,#0d2d1a,#143d22)';this.style.height='320px';this.src='';">
+                    <div class="compare-label label-after">✨ Render con IA</div>
+                </div>
+            </div>
+
+            <!-- Description below comparison -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:900px;margin:2rem auto 0;">
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;">
+                    <div style="font-size:1.5rem;margin-bottom:.75rem;">📸</div>
+                    <div style="font-weight:700;margin-bottom:.5rem;">Foto original del cliente</div>
+                    <div style="color:var(--muted);font-size:.9rem;line-height:1.6;">El cliente sube una fotografía real
+                        de su espacio, tomada con el móvil o desde galería.</div>
+                </div>
+                <div
+                    style="background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.2);border-radius:16px;padding:1.5rem;">
+                    <div style="font-size:1.5rem;margin-bottom:.75rem;">🤖</div>
+                    <div style="font-weight:700;margin-bottom:.5rem;">Render generado por IA</div>
+                    <div style="color:var(--muted);font-size:.9rem;line-height:1.6;">El modelo de IA añade el toldo
+                        respetando la perspectiva, iluminación y sombras reales de la escena.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ACCIONES POST-RENDER -->
+    <section id="acciones">
+        <div class="container">
+            <div class="section-label">Después del render</div>
+            <div class="section-title">¿Qué puede hacer el cliente con su render?</div>
+            <p class="section-sub">Una vez generada la imagen, el cliente tiene múltiples opciones para compartir,
+                guardar o seguir explorando variantes — todo sin salir de la app.</p>
+
+            <div class="features-grid" style="margin-top:3rem;">
+                <div class="feat-card" style="border-color:rgba(37,211,102,0.25);background:rgba(37,211,102,0.04);">
+                    <div class="feat-icon">📲</div>
+                    <div class="feat-title" style="color:#25d366;">Enviar por WhatsApp</div>
+                    <div class="feat-desc">Con un solo toque el cliente envía el render directamente a su conversación
+                        de WhatsApp — ideal para consultar con la familia o confirmar el pedido con el instalador.</div>
+                </div>
+                <div class="feat-card" style="border-color:rgba(59,130,246,0.25);background:rgba(59,130,246,0.04);">
+                    <div class="feat-icon">📧</div>
+                    <div class="feat-title" style="color:var(--primary);">Enviar por e-mail</div>
+                    <div class="feat-desc">El cliente puede enviarse el render a su correo o al email de tu empresa
+                        directamente desde la app, sin necesidad de descargar nada antes.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">⬇️</div>
+                    <div class="feat-title">Descargar en alta resolución</div>
+                    <div class="feat-desc">El render se descarga al carrete del móvil en calidad original. El cliente se
+                        lo lleva a casa y puede usarlo para comparar opciones tranquilamente.</div>
+                </div>
+                <div class="feat-card" style="border-color:rgba(129,140,248,0.25);background:rgba(129,140,248,0.04);">
+                    <div class="feat-icon">🔁</div>
+                    <div class="feat-title" style="color:var(--accent);">Regenerar otra variante</div>
+                    <div class="feat-desc">¿No convence el color? El cliente vuelve al catálogo, elige otra opción y
+                        genera un nuevo render en segundos. Sin límite de intentos.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🖥️</div>
+                    <div class="feat-title">Ver en pantalla completa (Full HD)</div>
+                    <div class="feat-desc">El render se abre a pantalla completa para revisar cada detalle: texturas,
+                        sombras, integración con la fachada. Perfecto para mostrar en una tablet o monitor.</div>
+                </div>
+                <div class="feat-card" style="border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.04);">
+                    <div class="feat-icon">↩️</div>
+                    <div class="feat-title" style="color:#ef4444;">Empezar de nuevo</div>
+                    <div class="feat-desc">El cliente puede reiniciar el proceso desde cero para probar una foto
+                        diferente, otra zona de la fachada o un tipo de toldo completamente distinto.</div>
+                </div>
+            </div>
+
+            <!-- CTA destacado -->
+            <div
+                style="margin-top:3rem;padding:2.5rem;border-radius:24px;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(129,140,248,0.08));border:1px solid rgba(59,130,246,0.2);text-align:center;max-width:700px;margin-left:auto;margin-right:auto;margin-top:3rem;">
+                <div style="font-size:2rem;margin-bottom:1rem;">💬</div>
+                <div style="font-size:1.3rem;font-weight:800;margin-bottom:.75rem;">El render como herramienta de venta
+                </div>
+                <div style="color:var(--muted);line-height:1.7;font-size:.95rem;">El cliente que ve su toldo en su
+                    propia fachada, con sus colores y sus medidas, <strong style="color:var(--text);">toma la decisión
+                        de compra en el momento</strong>. ToldosAI convierte la visita comercial en un proceso visual,
+                    rápido y sin dudas.</div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TECNOLOGÍA -->
+    <section id="tecnologia">
+        <div class="container">
+            <div class="section-label">Tecnología</div>
+            <div class="section-title">Arquitectura del sistema</div>
+            <p class="section-sub">Una stack moderna y escalable que combina IA de última generación con una experiencia
+                de usuario simplísima.</p>
+            <div class="features-grid">
+                <div class="feat-card">
+                    <div class="feat-icon">📱</div>
+                    <div class="feat-title">App web progresiva</div>
+                    <div class="feat-desc">React + Vite. Sin instalación, funciona en cualquier móvil desde el
+                        navegador. Diseño glassmorphism premium.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">✨</div>
+                    <div class="feat-title">Clic mágico (Magic Wand)</div>
+                    <div class="feat-desc">Algoritmo BFS de selección por color similar al de Photoshop. Un solo clic
+                        selecciona toda el área de la pared automáticamente.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🧠</div>
+                    <div class="feat-title">SDXL Inpainting + ControlNet</div>
+                    <div class="feat-desc">El motor de IA usa Stable Diffusion XL con Inpainting para pintar el toldo
+                        solo en la zona marcada, respetando perspectiva y luz.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">⚡</div>
+                    <div class="feat-title">Fal.ai + n8n</div>
+                    <div class="feat-desc">La inferencia corre en GPUs de Fal.ai. n8n orquesta el pipeline: subir
+                        imágenes a S3, llamar al modelo y devolver el resultado.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">📂</div>
+                    <div class="feat-title">Catálogo configurable</div>
+                    <div class="feat-desc">Tipos y colores de toldos definidos en un archivo de configuración. Fácil de
+                        ampliar con nuevas referencias sin tocar código.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🔒</div>
+                    <div class="feat-title">Seguro y privado</div>
+                    <div class="feat-desc">Las imágenes se almacenan temporalmente en S3 con URLs firmadas. No se
+                        guardan datos del cliente a largo plazo.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Desarrollado con ❤️ · <strong>ToldosAI</strong> — Prototipo demostrativo · Powered by Fal.ai · ComfyUI · n8n
+            · React</p>
+    </footer>
+
+</body>
+
+</html>

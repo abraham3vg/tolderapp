@@ -1,0 +1,88 @@
+.mask-canvas-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.transformable-box {
+    position: absolute;
+    user-select: none;
+    z-index: 20;
+}
+
+.mask-box-fill {
+    position: absolute;
+    inset: 0;
+    background: rgba(34, 197, 94, 0.45); /* Semi-transparent green */
+    border-radius: 4px; /* Optional slight rounding */
+    pointer-events: none;
+}
+
+.mask-box-border {
+    position: absolute;
+    inset: -2px;
+    border: 2px solid #22c55e;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.mask-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Reusing handle styles from previous interactive items */
+.mask-handle {
+    position: absolute;
+    background: #22c55e;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    z-index: 11;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-handle {
+    top: -12px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: #ef4444; /* red */
+}
+
+.delete-handle:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.rotate-handle {
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: grab;
+}
+
+.rotate-handle:active {
+    cursor: grabbing;
+}
+
+.scale-handle {
+    bottom: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: se-resize;
+}
