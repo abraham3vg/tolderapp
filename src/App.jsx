@@ -62,18 +62,72 @@ export default function App() {
       return;
     }
 
-    const imagenB64 = imageBase64;
+    // Instead of raw image, we bake the red box onto the base64 string directly 
+    // This perfectly bypasses CORS exceptions while properly handling rotation and placement
+    const imagenB64 = (await maskRef.current?.getImageWithRedBox?.()) || imageBase64;
+    
     // We send mask only if user drew one or auto-detected it. Might be empty if they didn't.
     const mascaraB64 = maskBase64 || "";
 
     // ── Build the payload ─────────────────────────────────
-    const technicalPrompt = `${selectedType.prompt}, ${selectedColor.prompt}, photorealistic, professional architecture photography, 8k uhd`;
+    // Using Flux Kontext Pro for scene EDITING (not inpainting).
+    // This model understands "add X to the scene" instructions much better than inpainting models.
+    
+    // Convert the drawn box coordinates to semantic text placement and CAMBER/ANGLE logic
+    let placementInstruction = "mounted on the wall";
+    let angleInstruction = "viewed from a neutral straight-on angle";
+    const maskBox = maskRef.current?.getMaskBox?.();
+    if (maskBox && maskBox.containerWidth && maskBox.containerHeight) {
+      const centerX = maskBox.x + (maskBox.width / 2);
+      const centerY = maskBox.y + (maskBox.height / 2);
+      
+      const xPos = centerX < maskBox.containerWidth / 3 ? "left" : centerX > (maskBox.containerWidth * 2) / 3 ? "right" : "center";
+      const yPos = centerY < maskBox.containerHeight / 3 ? "top" : centerY > (maskBox.containerHeight * 2) / 3 ? "bottom" : "middle";
+      
+      placementInstruction = `mounted specifically on the ${yPos} ${xPos} area of the facade`;
+      
+      // Infer camera perspective based on where the awning is placed vertically
+      // If awning is at the very top, camera is likely looking up from below.
+      // If awning is at the very bottom, camera is likely looking down from above.
+      if (yPos === "top") angleInstruction = "viewed from below looking slightly up, revealing only the clean underside fabric of the awning; retractable arms and mounting brackets are partially visible but tucked against the wall";
+      else if (yPos === "bottom") angleInstruction = "viewed from above looking down, showing ONLY the top fabric/canvas surface of the awning. The retractable arms, lateral support bars and all mechanical components MUST NOT be visible from this top-down angle — they are completely hidden underneath the canvas fabric";
+      else angleInstruction = "viewed straight on from a level eye-height perspective, showing the front profile of the awning with arms folded neatly parallel to the wall";
+    }
+
+    const colorDesc = selectedColor.hex
+      ? `${selectedColor.label} (hex ${selectedColor.hex}) colored`
+      : 'classic white and blue striped';
+    const technicalPrompt =
+      `Generate a photorealistic architectural visualization. Add a ${selectedType.prompt}. ` +
+      `${selectedColor.prompt}. ` +
+      `The awning is ${placementInstruction} and extends outward, casting a soft realistic shadow below it. ` +
+      `Camera perspective: ${angleInstruction}. ` +
+      `CRITICAL INSTRUCTION: You MUST strictly follow the structural description and the provided reference image. ` +
+      `Place the awning EXACTLY where the thick RED RECTANGULAR OUTLINE is drawn on the original image, covering that red outline seamlessly. ` +
+      `Keep the rest of the building, roof, furniture, plants, tiles and all other elements EXACTLY unchanged. ` +
+      `Photorealistic architectural photography, 8k uhd, natural lighting.`;
     const finalPrompt = promptValue 
-        ? `${technicalPrompt}. USER OBSERVATION: ${promptValue}` 
+        ? `${technicalPrompt} User note: ${promptValue}` 
         : technicalPrompt;
 
-    // Fal.ai endpoints require ABSOLUTE public URLs or Base64 Data URIs, not relative paths
-    const absoluteStockImageUrl = new URL(selectedModel.imageUrl, window.location.origin).href;
+    // Convert the local stock model image to a Base64 Data URI
+    // Flux 2 Pro accepts base64 data URIs for reference images, which is needed for localhost.
+    let stockImageBase64 = '';
+    try {
+      const imgFetchOptions = { cache: 'no-store' }; 
+      const imgRes = await fetch(selectedModel.imageUrl, imgFetchOptions);
+      const imgBlob = await imgRes.blob();
+      stockImageBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(imgBlob);
+      });
+    } catch (e) {
+      setIsLoading(false);
+      setError('Error al cargar la imagen del catálogo: ' + e.message);
+      return;
+    }
 
     // Fal.ai requires valid Base64 Data URIs for images, it strictly rejects empty strings. 
     // If no mask is provided, we should gracefully fail before hitting the API, or in an advanced implementation send a generated dummy mask. 
@@ -84,13 +138,38 @@ export default function App() {
       return;
     }
 
+    // Capture exact mathematical coordinates dynamically for N8N Server-Side Processing
+    // We scale the DOM coordinates back to the original image coordinates
+    let boxCoordinates = null;
+    const rawBox = maskRef.current?.getRawBox?.();
+    if (rawBox && maskBox && maskBox.containerWidth) {
+       // Using an assumed natural width/height if we don't have it directly.
+       // The containerWidth is the visual DOM size. We send the raw pixel coordinates relative to the DOM
+       // and N8N can calculate the relative percentage.
+       boxCoordinates = {
+          x: rawBox.x,
+          y: rawBox.y,
+          width: rawBox.width,
+          height: rawBox.height,
+          start_x: rawBox.x,
+          end_x: rawBox.x + rawBox.width,
+          start_y: rawBox.y,
+          end_y: rawBox.y + rawBox.height,
+          containerWidth: maskBox.containerWidth,
+          containerHeight: maskBox.containerHeight
+       };
+    }
+
     const payload = {
-      imagen: imagenB64,
-      mascara: mascaraB64,
+      imagen: imagenB64.includes(',') ? imagenB64.split(',')[1] : imagenB64,
+      mascara: mascaraB64.includes(',') ? mascaraB64.split(',')[1] : mascaraB64,
+      box_coordinates: boxCoordinates,
       prompt: finalPrompt,
       category: selectedType.label,
-      stockImageUrl: absoluteStockImageUrl,
+      stockImageUrl: stockImageBase64 ? stockImageBase64 : null,
+      image_urls: selectedModel?.imageUrl ? [imagenB64, selectedModel.imageUrl] : [imagenB64],
       colorHex: selectedColor.hex || "striped",
+      negative_prompt: "valance, hanging fabric, drop-down edge, draped cloth, scallop edge, skirt, fringes, bulky cassette, thick mounting base, heavy aluminum box, large structure",
     };
 
     // ── Debug console ───────
@@ -115,20 +194,13 @@ export default function App() {
       setLoadStage('segmenting');
 
       console.log('[ToldosAI] Enviando fetch a:', N8N_WEBHOOK_URL);
-      let res;
-      try {
-        res = await fetch(N8N_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-          credentials: 'omit',
-        });
-      } catch (fetchErr) {
-        console.error('[ToldosAI] Fetch falló:', fetchErr);
-        if (fetchErr.name === 'AbortError') throw new Error('Tiempo de espera agotado (120s).');
-        throw new Error(`No se pudo conectar con n8n.\n• URL: ${N8N_WEBHOOK_URL}\n• Error: ${fetchErr.message}`);
-      }
+      const res = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+        credentials: 'omit',
+      });
 
       setLoadStage('generating');
 

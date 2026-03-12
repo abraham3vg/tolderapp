@@ -4,7 +4,7 @@ import { useState, useCallback, useRef } from 'react';
  * useAutoMask — Manages the interactive green selection box.
  * Can be drawn manually by the user or set programmatically by an AI webhook.
  */
-export function useAutoMask(imageEl, containerEl) {
+export function useAutoMask(imageEl, containerEl, imageBase64) {
     const maskCanvasRef = useRef(null);
     
     // We only support one active mask box at a time for simplicity and clarity.
@@ -41,10 +41,14 @@ export function useAutoMask(imageEl, containerEl) {
         const canvas = maskCanvasRef.current;
         if (!canvas) return null;
         
-        const rect = canvas.getBoundingClientRect();
-        // Calculate the ratio between the internal high-res canvas and the current screen CSS size
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+        // Use offsetWidth/offsetHeight of the container to get the true visual size of the rendered image area
+        // NOT getBoundingClientRect which includes fractional device pixels that cause slight drift
+        const displayWidth = canvas.offsetWidth || canvas.clientWidth;
+        const displayHeight = canvas.offsetHeight || canvas.clientHeight;
+        
+        // The scale factor between what the user sees on screen and the actual image resolution
+        const scaleX = canvas.width / displayWidth;
+        const scaleY = canvas.height / displayHeight;
 
         const ctx = canvas.getContext('2d');
         
@@ -58,7 +62,7 @@ export function useAutoMask(imageEl, containerEl) {
         const drawY = maskBox.y * scaleY;
 
         ctx.save();
-        // Move to the center of the item
+        // Move to the center of the item in high-res canvas space
         ctx.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
         // Rotate
         ctx.rotate((maskBox.rotation || 0) * Math.PI / 180);
@@ -77,6 +81,52 @@ export function useAutoMask(imageEl, containerEl) {
 
         return canvas.toDataURL('image/png');
     }, [maskBox]);
+
+    // Bakes the red bounding box onto the actual image base64 locally
+    // Since we use the base64 string directly, it bypasses CORS exceptions perfectly
+    const bakeImageWithRedBox = useCallback(async () => {
+        if (!maskBox) return imageBase64;
+        
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw original image
+                ctx.drawImage(img, 0, 0);
+
+                const refCanvas = maskCanvasRef.current;
+                const displayWidth = refCanvas.offsetWidth || refCanvas.clientWidth || 1;
+                const displayHeight = refCanvas.offsetHeight || refCanvas.clientHeight || 1;
+                
+                const scaleX = canvas.width / displayWidth;
+                const scaleY = canvas.height / displayHeight;
+
+                const drawWidth = maskBox.width * scaleX;
+                const drawHeight = maskBox.height * scaleY;
+                const drawX = maskBox.x * scaleX;
+                const drawY = maskBox.y * scaleY;
+
+                ctx.save();
+                ctx.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
+                ctx.rotate((maskBox.rotation || 0) * Math.PI / 180);
+                
+                ctx.strokeStyle = "red";
+                // Scale line width appropriately based on image size, min 5px
+                ctx.lineWidth = Math.max(5, canvas.width * 0.005);
+                ctx.strokeRect(-drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+                
+                ctx.restore();
+
+                resolve(canvas.toDataURL('image/jpeg'));
+            };
+            img.onerror = () => resolve(imageBase64);
+            img.src = imageBase64;
+        });
+    }, [maskBox, imageBase64]);
 
     // Handlers for manual drawing of the box
     const handlePointerDown = (e) => {
@@ -153,6 +203,7 @@ export function useAutoMask(imageEl, containerEl) {
         setMaskBoxFromAI,
         clearMask,
         bakeMask,
+        bakeImageWithRedBox,
         handlers: {
             onPointerDown: handlePointerDown,
             onPointerMove: handlePointerMove,

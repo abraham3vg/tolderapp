@@ -21,8 +21,9 @@ const AutoMaskCanvas = forwardRef(function AutoMaskCanvas({ imageUrl, imageBase6
         setMaskBoxFromAI,
         clearMask,
         bakeMask,
+        bakeImageWithRedBox,
         handlers
-    } = useAutoMask(imgRef.current, canvasWrapRef.current);
+    } = useAutoMask(imgRef.current, canvasWrapRef.current, imageBase64);
 
     // Sync canvas dimensions to photo dimensions when image loads
     useEffect(() => {
@@ -40,11 +41,29 @@ const AutoMaskCanvas = forwardRef(function AutoMaskCanvas({ imageUrl, imageBase6
         return () => img.removeEventListener('load', sync);
     }, [imageUrl, maskCanvasRef]);
 
-    // Expose methods to parent
     useImperativeHandle(ref, () => ({
         getMaskBase64: async () => await bakeMask(),
+        getImageWithRedBox: async () => await bakeImageWithRedBox(),
         getPrompt: () => promptText.trim(),
         hasMask: () => maskBox !== null,
+        getRawBox: () => {
+             if (!maskBox || !maskCanvasRef.current || !canvasWrapRef.current) return maskBox;
+             const canvas = maskCanvasRef.current;
+             const displayWidth = canvas.offsetWidth || canvasWrapRef.current.offsetWidth || canvas.clientWidth || 1;
+             const displayHeight = canvas.offsetHeight || canvasWrapRef.current.offsetHeight || canvas.clientHeight || 1;
+             const scaleX = canvas.width / displayWidth;
+             const scaleY = canvas.height / displayHeight;
+             return {
+                 ...maskBox,
+                 x: Math.round(maskBox.x * scaleX),
+                 y: Math.round(maskBox.y * scaleY),
+                 width: Math.round(maskBox.width * scaleX),
+                 height: Math.round(maskBox.height * scaleY),
+                 containerWidth: canvas.width,
+                 containerHeight: canvas.height
+             };
+        },
+        getMaskBox: () => maskBox ? { ...maskBox, containerWidth: canvasWrapRef.current?.offsetWidth || 1, containerHeight: canvasWrapRef.current?.offsetHeight || 1 } : null
     }), [bakeMask, promptText, maskBox]);
 
     // Implementación de Auto-Detección vía Webhook
