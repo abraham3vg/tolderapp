@@ -79,7 +79,7 @@ const AutoMaskCanvas = forwardRef(function AutoMaskCanvas({ imageUrl, imageBase6
         setIsDetecting(true);
         
         try {
-            const webhookUrl = "https://abrahampruebas2.app.n8n.cloud/webhook/pre-analisis-vision";
+            const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_VISION_URL || "https://abrahampruebas2.app.n8n.cloud/webhook/pre-analisis-vision";
             
             const response = await fetch(webhookUrl, {
                 method: 'POST',

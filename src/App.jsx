@@ -105,6 +105,9 @@ export default function App() {
       `CRITICAL INSTRUCTION: You MUST strictly follow the structural description and the provided reference image. ` +
       `Place the awning EXACTLY where the thick RED RECTANGULAR OUTLINE is drawn on the original image, covering that red outline seamlessly. ` +
       `Keep the rest of the building, roof, furniture, plants, tiles and all other elements EXACTLY unchanged. ` +
+      `DO NOT PLACE THE AWNING IN WEIRD, RANDOM OR UNEXPECTED LOCATIONS — install it only where the red outline indicates. ` +
+      `DO NOT GENERATE A DOUBLE AWNING OR MORE THAN ONE AWNING — there must be exactly one awning in the scene. ` +
+      `STRICTLY RESPECT THE REFERENCE MODEL PROVIDED — replicate its exact structure, shape, arms and proportions. ` +
       `Photorealistic architectural photography, 8k uhd, natural lighting.`;
     const finalPrompt = promptValue 
         ? `${technicalPrompt} User note: ${promptValue}` 
@@ -176,7 +179,7 @@ export default function App() {
     const imagenKB = Math.round(imagenB64.length / 1024);
     const mascaraKB = Math.round(mascaraB64.length / 1024);
     const totalKB = Math.round(JSON.stringify(payload).length / 1024);
-    console.group('[ToldosAI] Generando render');
+    console.group('[TolderAi] Generando render');
     console.log('URL webhook:', N8N_WEBHOOK_URL);
     console.log(`Tamaño imagen:  ${imagenKB} KB`);
     console.log(`Payload total:  ${totalKB} KB`);
@@ -186,14 +189,14 @@ export default function App() {
 
     // AbortController — 120 s timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120_000);
+    const timeoutId = setTimeout(() => controller.abort(new DOMException('Tiempo de espera agotado (120s). El servidor n8n tardó demasiado.', 'TimeoutError')), 120_000);
 
     try {
       setLoadStage('uploading');
       await sleep(300);
       setLoadStage('segmenting');
 
-      console.log('[ToldosAI] Enviando fetch a:', N8N_WEBHOOK_URL);
+      console.log('[TolderAi] Enviando fetch a:', N8N_WEBHOOK_URL);
       const res = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -250,7 +253,11 @@ export default function App() {
       setStep('result');
     } catch (err) {
       console.error('[Generate]', err);
-      setError(err.message);
+      if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+        setError('Tiempo de espera agotado. El servidor n8n tardó demasiado en responder. Inténtalo de nuevo.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       clearTimeout(timeoutId);
       setIsLoading(false);
@@ -275,7 +282,7 @@ export default function App() {
         <div className="header-inner">
           <div className="logo">
             <Layers size={26} className="logo-icon" />
-            <span className="logo-text">Toldos<span className="logo-accent">AI</span></span>
+            <span className="logo-text">Tolder<span className="logo-accent">Ai</span></span>
           </div>
           <div className="header-badge">
             <Zap size={12} fill="currentColor" /> Beta
@@ -426,7 +433,7 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
-        <p>ToldosAI · Generación de renders con IA · <a href="https://fal.ai" target="_blank" rel="noopener noreferrer">Fal.ai</a> + n8n</p>
+        <p>TolderAi · Generación de renders con IA · <a href="https://fal.ai" target="_blank" rel="noopener noreferrer">Fal.ai</a> + n8n</p>
       </footer>
     </div>
   );
